@@ -1,11 +1,8 @@
 from graph import Graph
-from fastapi import FastAPI
-# from psycopg_pool import ConnectionPool
-import os
-# from langgraph.checkpoint.postgres import PostgresSaver
-from dotenv import load_dotenv
-
-load_dotenv()
+from fastapi import FastAPI, Request
+from llm import get_llm
+from pydantic import BaseModel
+from enum import Enum
 
 app = FastAPI()
 
@@ -23,28 +20,15 @@ async def invoke():
 
   return result
 
-# @app.get("/invoke_with_checkpoint")
-# async def invoke_with_checkpoint():
-#   connection_kwargs = {
-#     "autocommit": True,
-#     "prepare_threshold": 0,
-#   }
+class Role(str, Enum):
+  SYSTEM = "system"
+  HUMAN = "human"
 
-#   with ConnectionPool(
-#     conninfo=os.getenv("POSTGRES_DB_URI"),
-#     max_size=20,
-#     kwargs=connection_kwargs,
-#   ) as pool:
-#     checkpointer = PostgresSaver(pool)
-#     checkpointer.setup()
-#     graph = Graph(checkpointer).graph
-#     result = graph.invoke({
-#       "messages": [("user", "Quiz on World of Warcraft")],
-#       "learning_objectives": "1. Understand the history of World of Warcraft\n2. Understand the lore of World of Warcraft\n3. Understand the characters of World of Warcraft"
-#     },
-#     config={
-#       "configurable": {
-#         "thread_id": "1"
-#       }
-#     })
-#   return result
+class ChatRequest(BaseModel):
+  messages: list[tuple[Role, str]]
+
+@app.post("/simple-chat")
+async def chat(request: ChatRequest):
+  print(request)
+  llm = get_llm()
+  return llm.invoke(request.messages)
