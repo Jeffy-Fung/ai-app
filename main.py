@@ -1,5 +1,5 @@
 from graph import Graph
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from llm import get_llm
 from pydantic import BaseModel
 from enum import Enum
@@ -29,6 +29,6 @@ class ChatRequest(BaseModel):
 
 @app.post("/simple-chat")
 async def chat(request: ChatRequest):
-  print(request)
+  print("request: ", request)
   llm = get_llm()
   return llm.invoke(request.messages)
