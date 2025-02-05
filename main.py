@@ -32,3 +32,11 @@ async def chat(request: ChatRequest):
   print("request: ", request)
   llm = get_llm()
   return llm.invoke(request.messages)
+
+@app.get("/news-details")
+async def get_news(url: str):
+  import newspaper
+
+  article = newspaper.article(url)
+
+  return article
