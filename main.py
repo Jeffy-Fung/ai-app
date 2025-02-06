@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from llm import get_llm
 from pydantic import BaseModel
 from enum import Enum
-
+from typing import Annotated
+from fastapi import Query
 app = FastAPI()
 
 @app.get("/")
@@ -34,9 +35,9 @@ async def chat(request: ChatRequest):
   return llm.invoke(request.messages)
 
 @app.get("/news-details")
-async def get_news(url: str):
-  import newspaper
+async def get_news(urls: Annotated[list[str], Query()]):
+  from newspaper.mthreading import fetch_news
 
-  article = newspaper.article(url)
+  articles = fetch_news(urls)
 
-  return article
+  return articles
