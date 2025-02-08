@@ -14,18 +14,21 @@ async def health_check():
 class Role(str, Enum):
   SYSTEM = "system"
   HUMAN = "human"
+  AI = "ai"
 
 class InvokeRequest(BaseModel):
-  messages: list[tuple[Role, str]]
+  message_histories: list[tuple[Role, str]]
   filtered_document_ids: list[int | str] | None = None
+  raw_input: str
 
 @app.post("/rag-chat")
 async def rag_chat(request: InvokeRequest):
   graph = Graph().graph
 
   result = graph.invoke({
-    "messages": request.messages,
-    "filtered_document_ids": request.filtered_document_ids
+    "message_histories": request.message_histories,
+    "filtered_document_ids": request.filtered_document_ids,
+    "raw_input": request.raw_input
   })
 
   return result

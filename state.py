@@ -5,6 +5,9 @@ from typing_extensions import TypedDict
 from langgraph.graph import add_messages
 
 class State(TypedDict):
-  messages: Annotated[list, add_messages]
-  documents: list
+  message_histories: Annotated[list, add_messages]
+  raw_input: str
+  rephrased_input: str
   filtered_document_ids: list[int | str]
+  documents: list
+  output: str

@@ -4,8 +4,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from retriever import get_retriever
 from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.chains import create_history_aware_retriever
 
 class Node:
   def __init__(self):
@@ -25,46 +23,44 @@ class Node:
     rag_chain = prompt | self.llm | StrOutputParser()
 
     return {
-      "messages": [
-        rag_chain.invoke({
-          "documents": state["documents"],
-          "question": state["messages"][-1].content
-        })
-      ]
+      "output": AIMessage(
+          rag_chain.invoke({
+            "documents": state["documents"],
+            "question": state["rephrased_input"]
+          })
+        )
     }
-  
+
   def retrieve_documents(self, state: State) -> State:
     retriever = get_retriever(state["filtered_document_ids"])
 
-    system_instruction = """Given a chat history and the latest user question \
-        which might reference context in the chat history, formulate a standalone question \
-        which can be understood without the chat history. Do NOT answer the question, \
-        just reformulate it if needed and otherwise return it as is."""
-
-    prompt = ChatPromptTemplate.from_messages([
-      ("system", system_instruction),
-      MessagesPlaceholder("chat_history"),
-      ("human", "{input}")
-    ])
-
-    history_aware_retriever = create_history_aware_retriever(
-      self.llm,
-      retriever,
-      prompt
-    )
-    
-    retrieved_documents = history_aware_retriever.invoke({
-      "input": state["messages"][-1].content,
-      "chat_history": state["messages"][:-1]
-    })
+    retrieved_documents = retriever.invoke(state["rephrased_input"])
 
     response_state = {
       "documents": retrieved_documents
     }
 
     if len(retrieved_documents) == 0:
-      response_state["messages"] = [
-        AIMessage(content="No documents found.")
-      ]
+      response_state["output"] = "No documents found."
 
     return response_state
+  
+  def rephrase_input_based_on_history(self, state: State) -> State:
+    prompt = PromptTemplate.from_template(
+      """
+        Given a chat history and the latest user question which might reference context in the chat history, 
+        please rewrite the question to be standalone question, which can be understood without the chat history.
+        Remember, DO NOT answer the question.
+        \n\nChat History: {chat_history}
+        \n\nQuestion: {input}
+      """
+    )
+
+    rephased_input = prompt | self.llm | StrOutputParser()
+
+    return {
+      "rephrased_input": rephased_input.invoke({
+          "chat_history": state["message_histories"],
+          "input": state["raw_input"]
+        })
+    }
