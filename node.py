@@ -34,7 +34,7 @@ class Node:
   def retrieve_documents(self, state: State) -> State:
     retriever = get_retriever(state["filtered_document_ids"])
 
-    retrieved_documents = retriever.invoke(state["rephrased_input"])
+    retrieved_documents = retriever.invoke(state["search_query"])
 
     response_state = {
       "documents": retrieved_documents
@@ -45,14 +45,41 @@ class Node:
 
     return response_state
   
+  def generate_search_query(self, state: State) -> State:
+    prompt = PromptTemplate.from_template(
+      """
+        You are an AI assistant specializing in Question-Answering (QA) tasks within a Retrieval-Augmented Generation (RAG) system. 
+        Your primary mission is to answer questions based on the provided context or chat history.
+        Ensure your response is concise and directly addresses the question without any additional narration.
+
+        Now, given the below chat history, generate a search query to look up to get information relevant to the conversation.
+
+        \n\nQuestion: {input}
+        \n\nChat history: {chat_history}
+      """
+    )
+
+    chain = prompt | self.llm | StrOutputParser()
+
+    return {
+      "search_query": chain.invoke({
+          "chat_history": state["message_histories"],
+          "input": state["raw_input"]
+        })
+    }
+
+  
   def rephrase_input_based_on_history(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
         Given a chat history and the latest user question which might reference context in the chat history, 
-        please rewrite the question to be standalone question, which can be understood without the chat history.
+        please rewrite, rephrase, or modify the question to be one or more standalone questions, 
+        which can be understood without the chat history.
+        Please keep as much context as possible in the question so that it can be understood without the chat history.
         Remember, DO NOT answer the question.
         \n\nChat History: {chat_history}
         \n\nQuestion: {input}
+
       """
     )
 

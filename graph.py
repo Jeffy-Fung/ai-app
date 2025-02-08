@@ -19,11 +19,13 @@ class Graph:
     node = Node()
 
     graph_builder.add_node("rephrase_input_based_on_history", node.rephrase_input_based_on_history)
+    graph_builder.add_node("generate_search_query", node.generate_search_query)
     graph_builder.add_node("retrieve_documents", node.retrieve_documents)
     graph_builder.add_node("generate_response", node.generate_response)
 
     graph_builder.set_entry_point("rephrase_input_based_on_history")
-    graph_builder.add_edge("rephrase_input_based_on_history", "retrieve_documents")
+    graph_builder.add_edge("rephrase_input_based_on_history", "generate_search_query")
+    graph_builder.add_edge("generate_search_query", "retrieve_documents")
     graph_builder.add_conditional_edges(
       "retrieve_documents",
       is_documents_found,

@@ -8,6 +8,7 @@ class State(TypedDict):
   message_histories: Annotated[list, add_messages]
   raw_input: str
   rephrased_input: str
+  search_query: str
   filtered_document_ids: list[int | str]
   documents: list
   output: str
