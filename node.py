@@ -9,15 +9,15 @@ from langchain_core.messages import AIMessage
 class Node:
   def __init__(self):
     self.llm = get_llm()
-    self.retriever = get_retriever()
 
   def generate_response(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
-      You are a teacher creating a quiz of the given documents to secondary school students. 
-      The quiz should consist of 5 questions, in the format of multiple choice, with 4 options, and the correct answer.
-      The quiz should test the following learning objectives: {learning_objectives}
-      \nDocuments: \n\n{documents}
+      You are a assistant, reporting on the economic news in the world, to assist user digesting hugh amount of news articles.
+      Your job is to answer the user's question based on the news articles provided. 
+      If you dont know the answer, just say "I don't know".
+      \n\nDocuments: \n\n{documents}
+      \n\nQuestion: {question}
       """
     )
 
@@ -27,13 +27,13 @@ class Node:
       "messages": [
         rag_chain.invoke({
           "documents": state["documents"],
-          "learning_objectives": state["learning_objectives"]
+          "question": state["messages"][-1].content
         })
       ]
     }
   
   def retrieve_documents(self, state: State) -> State:
-    retrieved_documents = self.retriever.invoke(state["learning_objectives"])
+    retrieved_documents = get_retriever(state["filtered_document_ids"]).invoke(state["messages"][-1].content)
 
     response_state = {
       "documents": retrieved_documents

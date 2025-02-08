@@ -8,21 +8,21 @@ import os
 load_dotenv()
 
 
-def get_retriever() -> QdrantVectorStore:
+def get_retriever(filtered_document_ids: list[int | str] | None = None) -> QdrantVectorStore:
   embedding = get_embedding()
 
   return QdrantVectorStore.from_existing_collection(
-    collection_name="testing_on_wow",
+    collection_name="news",
     embedding=embedding,
   url=os.getenv("QDRANT_URL"),
     api_key=os.getenv("QDRANT_API_KEY")
   ).as_retriever(
     search_kwargs={
       "filter": models.Filter(
-        must=[
+        should=[
           models.FieldCondition(
-            key="metadata.title",
-            match=models.MatchValue(value="World of Warcraft")
+            key="metadata.id",
+            match=models.MatchAny(any=filtered_document_ids)
           )
         ]
       ),

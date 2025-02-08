@@ -11,19 +11,24 @@ app = FastAPI()
 async def health_check():
   return "Success response"
 
-@app.get("/invoke")
-async def invoke():
-  graph = Graph().graph
-  result = graph.invoke({
-    "messages": [("user", "Quiz on World of Warcraft")],
-    "learning_objectives": "1. Understand the history of World of Warcraft\n2. Understand the lore of World of Warcraft\n3. Understand the characters of World of Warcraft"
-  })
-
-  return result
-
 class Role(str, Enum):
   SYSTEM = "system"
   HUMAN = "human"
+
+class InvokeRequest(BaseModel):
+  messages: list[tuple[Role, str]]
+  filtered_document_ids: list[int | str] | None = None
+
+@app.post("/rag-chat")
+async def rag_chat(request: InvokeRequest):
+  graph = Graph().graph
+
+  result = graph.invoke({
+    "messages": request.messages,
+    "filtered_document_ids": request.filtered_document_ids
+  })
+
+  return result
 
 class ChatRequest(BaseModel):
   messages: list[tuple[Role, str]]
