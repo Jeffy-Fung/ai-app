@@ -1,7 +1,6 @@
-# from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
-from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import models
+from embedding import get_embedding
 
 from dotenv import load_dotenv
 import os
@@ -10,8 +9,7 @@ load_dotenv()
 
 
 def get_retriever() -> QdrantVectorStore:
-  # embedding = FastEmbedEmbeddings(model_name="nomic-ai/nomic-embed-text-v1.5-Q")
-  embedding = OpenAIEmbeddings(model="text-embedding-3-large")
+  embedding = get_embedding()
 
   return QdrantVectorStore.from_existing_collection(
     collection_name="testing_on_wow",
