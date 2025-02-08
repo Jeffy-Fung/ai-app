@@ -4,7 +4,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from retriever import get_retriever
 from langchain_core.messages import AIMessage
-
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.chains import create_history_aware_retriever
 
 class Node:
   def __init__(self):
@@ -33,7 +34,29 @@ class Node:
     }
   
   def retrieve_documents(self, state: State) -> State:
-    retrieved_documents = get_retriever(state["filtered_document_ids"]).invoke(state["messages"][-1].content)
+    retriever = get_retriever(state["filtered_document_ids"])
+
+    system_instruction = """Given a chat history and the latest user question \
+        which might reference context in the chat history, formulate a standalone question \
+        which can be understood without the chat history. Do NOT answer the question, \
+        just reformulate it if needed and otherwise return it as is."""
+
+    prompt = ChatPromptTemplate.from_messages([
+      ("system", system_instruction),
+      MessagesPlaceholder("chat_history"),
+      ("human", "{input}")
+    ])
+
+    history_aware_retriever = create_history_aware_retriever(
+      self.llm,
+      retriever,
+      prompt
+    )
+    
+    retrieved_documents = history_aware_retriever.invoke({
+      "input": state["messages"][-1].content,
+      "chat_history": state["messages"][:-1]
+    })
 
     response_state = {
       "documents": retrieved_documents
