@@ -15,8 +15,8 @@ class Node:
       You are a assistant, reporting on the economic news in the world, to assist user digesting hugh amount of news articles.
       Your job is to answer the user's question based on the news articles provided. 
       If you dont know the answer, just say "I don't know".
-      \n\nDocuments: \n\n{documents}
       \n\nQuestion: {question}
+      \n\nNews articles: \n\n{documents}
       """
     )
 
@@ -68,18 +68,16 @@ class Node:
         })
     }
 
-  
   def rephrase_input_based_on_history(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
         Given a chat history and the latest user question which might reference context in the chat history, 
         please rewrite, rephrase, or modify the question to be one or more standalone questions, 
-        which can be understood without the chat history.
-        Please keep as much context as possible in the question so that it can be understood without the chat history.
+        which can be understood without looking at the chat history.
+        Please keep as much context as possible in the question so that it can be understood without looking at the chat history.
         Remember, DO NOT answer the question.
         \n\nChat History: {chat_history}
         \n\nQuestion: {input}
-
       """
     )
 
