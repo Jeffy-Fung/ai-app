@@ -15,9 +15,9 @@ def verify_api_key(api_key: str = Header(...)):
     raise HTTPException(status_code=401, detail="Unauthorized")
 
 
-@app.get("/")
-async def health_check():
-  return "Success response"
+# @app.get("/")
+# async def health_check():
+#   return "Success response"
 
 class Role(str, Enum):
   SYSTEM = "system"
