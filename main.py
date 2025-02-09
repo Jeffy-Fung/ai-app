@@ -1,11 +1,19 @@
 from graph import Graph
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException, Depends
 from llm import get_llm
 from pydantic import BaseModel
 from enum import Enum
 from typing import Annotated
 from fastapi import Query
+import os
+
 app = FastAPI()
+
+
+def verify_api_key(api_key: str = Header(...)):
+  if api_key not in os.getenv("APP_API_KEY"):
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
 
 @app.get("/")
 async def health_check():
@@ -21,7 +29,7 @@ class InvokeRequest(BaseModel):
   filtered_document_ids: list[int | str] | None = None
   raw_input: str
 
-@app.post("/rag-chat")
+@app.post("/rag-chat", dependencies=[Depends(verify_api_key)])
 async def rag_chat(request: InvokeRequest):
   graph = Graph().graph
 
@@ -36,13 +44,13 @@ async def rag_chat(request: InvokeRequest):
 class ChatRequest(BaseModel):
   messages: list[tuple[Role, str]]
 
-@app.post("/simple-chat")
+@app.post("/simple-chat", dependencies=[Depends(verify_api_key)])
 async def chat(request: ChatRequest):
   print("request: ", request)
   llm = get_llm()
   return llm.invoke(request.messages)
 
-@app.get("/news-details")
+@app.get("/news-details", dependencies=[Depends(verify_api_key)])
 async def get_news(urls: Annotated[list[str], Query()]):
   from newspaper.mthreading import fetch_news
 
@@ -53,7 +61,7 @@ async def get_news(urls: Annotated[list[str], Query()]):
 class EmbedNewsRequest(BaseModel):
   articles: list[dict[str, str | int]]
 
-@app.post("/embed-news")
+@app.post("/embed-news", dependencies=[Depends(verify_api_key)])
 async def embed_news(request: EmbedNewsRequest):
   from langchain_text_splitters import RecursiveCharacterTextSplitter
   from langchain_core.documents import Document
