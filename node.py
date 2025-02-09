@@ -36,14 +36,16 @@ class Node:
 
     retrieved_documents = retriever.invoke(state["search_query"])
 
-    response_state = {
+    if len(retrieved_documents) == 0:
+      return {
+        "output": AIMessage(
+          "No documents found."
+        )
+      }
+
+    return {
       "documents": retrieved_documents
     }
-
-    if len(retrieved_documents) == 0:
-      response_state["output"] = "No documents found."
-
-    return response_state
   
   def generate_search_query(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
