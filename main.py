@@ -44,11 +44,11 @@ class InvokeRequest(BaseModel):
 class ChatRequest(BaseModel):
   messages: list[tuple[Role, str]]
 
-@app.post("/simple-chat", dependencies=[Depends(verify_api_key)])
-async def chat(request: ChatRequest):
-  print("request: ", request)
-  llm = get_llm()
-  return llm.invoke(request.messages)
+# @app.post("/simple-chat", dependencies=[Depends(verify_api_key)])
+# async def chat(request: ChatRequest):
+#   print("request: ", request)
+#   llm = get_llm()
+#   return llm.invoke(request.messages)
 
 # @app.get("/news-details", dependencies=[Depends(verify_api_key)])
 # async def get_news(urls: Annotated[list[str], Query()]):
