@@ -50,13 +50,13 @@ async def chat(request: ChatRequest):
   llm = get_llm()
   return llm.invoke(request.messages)
 
-@app.get("/news-details", dependencies=[Depends(verify_api_key)])
-async def get_news(urls: Annotated[list[str], Query()]):
-  from newspaper.mthreading import fetch_news
+# @app.get("/news-details", dependencies=[Depends(verify_api_key)])
+# async def get_news(urls: Annotated[list[str], Query()]):
+#   from newspaper.mthreading import fetch_news
 
-  articles = fetch_news(urls)
+#   articles = fetch_news(urls)
 
-  return articles
+#   return articles
 
 class EmbedNewsRequest(BaseModel):
   articles: list[dict[str, str | int]]
