@@ -29,17 +29,17 @@ class InvokeRequest(BaseModel):
   filtered_document_ids: list[int | str] | None = None
   raw_input: str
 
-@app.post("/rag-chat", dependencies=[Depends(verify_api_key)])
-async def rag_chat(request: InvokeRequest):
-  graph = Graph().graph
+# @app.post("/rag-chat", dependencies=[Depends(verify_api_key)])
+# async def rag_chat(request: InvokeRequest):
+#   graph = Graph().graph
 
-  result = graph.invoke({
-    "message_histories": request.message_histories,
-    "filtered_document_ids": request.filtered_document_ids,
-    "raw_input": request.raw_input
-  })
+#   result = graph.invoke({
+#     "message_histories": request.message_histories,
+#     "filtered_document_ids": request.filtered_document_ids,
+#     "raw_input": request.raw_input
+#   })
 
-  return result
+#   return result
 
 class ChatRequest(BaseModel):
   messages: list[tuple[Role, str]]
