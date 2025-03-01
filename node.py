@@ -78,7 +78,7 @@ class Node:
     return {
       "search_query": chain.invoke({
           "chat_history": state["message_histories"],
-          "input": state["raw_input"]
+          "input": state["user_query"]
         })
     }
 
