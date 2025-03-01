@@ -66,10 +66,11 @@ class Node:
         Your primary mission is to answer questions based on the provided context or chat history.
         Ensure your response is concise and directly addresses the question without any additional narration.
 
-        Now, given the below chat history, generate a search query to look up to get information relevant to the conversation.
+        Now, given the latest 5 conversations and the summary of the chat history, generate a search query to look up to get information relevant to the conversation.
 
-        \n\nQuestion: {input}
-        \n\nChat history: {chat_history}
+        \n\nQuestion: {user_query}
+        \n\nChat history: {latest_chat_history}
+        \n\nSummary of chat history: {summary}
       """
     )
 
@@ -77,8 +78,15 @@ class Node:
 
     return {
       "search_query": chain.invoke({
-          "chat_history": state["message_histories"],
-          "input": state["user_query"]
+          "user_query": state["user_query"],
+          "latest_chat_history": trim_messages(
+              state["message_histories"],
+              token_counter=len,
+              strategy="last",
+              include_system=False,
+              max_tokens=5
+            ),
+          "summary": state["summary"]
         })
     }
 
