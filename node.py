@@ -78,8 +78,9 @@ class Node:
         which can be understood without looking at the chat history.
         Please keep as much context as possible in the question so that it can be understood without looking at the chat history.
         Remember, DO NOT answer the question.
-        \n\nChat History: {chat_history}
         \n\nQuestion: {input}
+        \n-----------------------------
+        \nChat History: {chat_history}
       """
     )
 
