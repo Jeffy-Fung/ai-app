@@ -3,7 +3,7 @@ from state import State
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from retriever import get_retriever
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, trim_messages
 
 class Node:
   def __init__(self):
@@ -14,9 +14,13 @@ class Node:
       """
       You are a assistant, reporting on the economic news in the world, to assist user digesting hugh amount of news articles.
       Your job is to answer the user's question based on the news articles provided. 
+      You can use the latest 5 conversations and the summary of the chat history to help you understand the context of the user's question.
       If you dont know the answer, just say "I don't know".
+
       \n\nQuestion: {question}
       \n\nNews articles: \n\n{documents}
+      \n\nSummary of previous conversations: {summary}
+      \n\nThe latest 5 conversations: {latest_chat_history}
       """
     )
 
@@ -26,7 +30,15 @@ class Node:
       "output": AIMessage(
           rag_chain.invoke({
             "documents": state["documents"],
-            "question": state["rephrased_input"]
+            "question": state["user_query"],
+            "summary": state["summary"],
+            "latest_chat_history": trim_messages(
+              state["message_histories"],
+              token_counter=len,
+              strategy="last",
+              include_system=False,
+              max_tokens=5
+            )
           })
         )
     }
@@ -70,25 +82,23 @@ class Node:
         })
     }
 
-  def rephrase_input_based_on_history(self, state: State) -> State:
+  def generate_summary_of_chat_history(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
         Given a chat history and the latest user question which might reference context in the chat history, 
-        please rewrite, rephrase, or modify the question to be one or more standalone questions, 
-        which can be understood without looking at the chat history.
-        Please keep as much context as possible in the question so that it can be understood without looking at the chat history.
+        please generate a summary of the chat history, in order to help the LLM understand the context of the user's question.
         Remember, DO NOT answer the question.
-        \n\nQuestion: {input}
-        \n-----------------------------
-        \nChat History: {chat_history}
+
+        \n\nUser Question: {user_query}
+        \n\nChat History: {chat_history}
       """
     )
 
-    rephased_input = prompt | self.llm | StrOutputParser()
+    summary_generator = prompt | self.llm | StrOutputParser()
 
     return {
-      "rephrased_input": rephased_input.invoke({
+      "summary": summary_generator.invoke({
           "chat_history": state["message_histories"],
-          "input": state["raw_input"]
+          "user_query": state["user_query"]
         })
     }

@@ -36,7 +36,8 @@ async def rag_chat(request: InvokeRequest):
   result = graph.invoke({
     "message_histories": request.message_histories,
     "filtered_document_ids": request.filtered_document_ids,
-    "raw_input": request.raw_input
+    "user_query": request.raw_input,
+    "summary": "none"
   })
 
   return result
