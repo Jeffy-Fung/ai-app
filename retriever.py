@@ -26,6 +26,6 @@ def get_retriever(filtered_document_ids: list[int | str] | None = None) -> Qdran
           )
         ]
       ),
-      "k": 10
+      "k": 5
     }
   )
