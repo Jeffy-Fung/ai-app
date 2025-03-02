@@ -63,7 +63,7 @@ class CorrectiveRetrievalNode:
 
     chain = prompt | self.llm | StrOutputParser()
     
-    documents = state["documents"]
+    documents = state["documents_with_scores"]
     documents_with_scores = []
     for document in documents:
       if document["score"] == "ambiguous":
