@@ -25,12 +25,13 @@ class Node:
     prompt = PromptTemplate.from_template(
       """
       You are a assistant, reporting on the economic news in the world, to assist user digesting hugh amount of news articles.
-      Your job is to answer the user's question based on the news articles provided. 
+      Your job is to answer the user's question based on the news articles provided, with the help of supplementary web search results. 
       You can use the latest 5 conversations and the summary of the chat history to help you understand the context of the user's question.
       If you dont know the answer, just say "I don't know".
 
       \n\nQuestion: {question}
       \n\nNews articles: \n\n{documents}
+      \n\nWeb search results: \n\n{web_search_results}
       \n\nSummary of previous conversations: {summary}
       \n\nThe latest 5 conversations: {recent_chat_history}
       """
@@ -40,13 +41,14 @@ class Node:
 
     return {
       "output": AIMessage(
-          rag_chain.invoke({
-            "documents": state["documents"],
-            "question": state["user_query"],
-            "summary": state["summary"],
-            "recent_chat_history": state["recent_chat_history"]
-          })
-        )
+        rag_chain.invoke({
+          "documents": state["documents"],
+          "question": state["user_query"],
+          "summary": state["summary"],
+          "recent_chat_history": state["recent_chat_history"],
+          "web_search_results": state["web_search_results"]
+        })
+      )
     }
 
   def retrieve_documents(self, state: State) -> State:
