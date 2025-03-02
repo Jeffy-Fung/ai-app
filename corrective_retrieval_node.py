@@ -2,7 +2,8 @@ from state import State
 from llm import get_llm
 from web_search_tool import get_web_search_tool
 from pydantic import BaseModel, Field
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
 class CorrectiveRetrievalNode:
   def __init__(self):
@@ -45,6 +46,47 @@ class CorrectiveRetrievalNode:
     return {
       "documents_with_scores": documents_with_scores
     }
+    
+  def define_web_search_query(self, state: State) -> State:
+    prompt = PromptTemplate.from_template(
+      """
+      You are a helpful assistant that defines a web search query, based on a user question and a retrieved document.
+      Your goal is to define a web search query, that is going to be searched on the web,
+      to supplement the missing information for the retrieved document when answering according to the user question.
+      
+      User question: {question}
+      Retrieved document: {document}
+      """
+    )
+
+    chain = prompt | self.llm | StrOutputParser()
+    
+    documents = state["documents"]
+    documents_with_scores = []
+    for document in documents:
+      if document.score == "maybe":
+        result = chain.invoke({
+          "question": state["user_query"],
+          "document": document
+        })
+        documents_with_scores.append({
+          "document": document,
+          "score": document.score,
+          "web_search_query": result
+        })
+      else:
+        documents_with_scores.append({
+          "document": document,
+          "score": document.score,
+          "web_search_query": None
+        })
+
+    return {
+      "documents_with_scores": documents_with_scores
+    }
+
+  def support_documents_with_web_search(self, state: State) -> State:
+    pass
 
 # Data model for the retrieval grader
 class GradeDocuments(BaseModel):
