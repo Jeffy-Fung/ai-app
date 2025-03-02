@@ -71,23 +71,28 @@ class CorrectiveRetrievalNode:
     
     documents = state["documents_with_scores"]
     documents_with_scores = []
+    tasks = []
     for document in documents:
       if document["score"] == "ambiguous":
-        result = await chain.ainvoke({
+        tasks.append(chain.ainvoke({
           "question": state["user_query"],
           "document": document
-        })
-        documents_with_scores.append({
-          "document": document,
-          "score": document["score"],
-          "web_search_query": result
-        })
+        }))
       else:
         documents_with_scores.append({
           "document": document,
           "score": document["score"],
           "web_search_query": None
         })
+        
+    results = await asyncio.gather(*tasks)
+    
+    for document, result in zip(documents, results):
+      documents_with_scores.append({
+        "document": document,
+        "score": document["score"],
+        "web_search_query": result
+      })
 
     return {
       "documents_with_scores": documents_with_scores
