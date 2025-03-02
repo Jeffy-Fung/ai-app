@@ -100,7 +100,6 @@ class CorrectiveRetrievalNode:
       overall_results = "\n".join([d["content"] for d in results])
       overall_results = Document(page_content=overall_results)
       web_search_results.append({
-        "document": document,
         "web_search_results": overall_results
       })
 
