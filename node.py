@@ -91,7 +91,7 @@ class Node:
         })
     }
 
-  def generate_summary_of_chat_history(self, state: State) -> State:
+  def generate_chat_summary(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
         Given a chat history and the latest user question which might reference context in the chat history, 

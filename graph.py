@@ -22,7 +22,7 @@ class Graph:
     node = Node()
 
     graph_builder.add_node("extract_recent_chat_history", node.extract_recent_chat_history)
-    graph_builder.add_node("generate_summary_of_chat_history", node.generate_summary_of_chat_history)
+    graph_builder.add_node("generate_chat_summary", node.generate_chat_summary)
     graph_builder.add_node("generate_search_query", node.generate_search_query)
     graph_builder.add_node("retrieve_documents", node.retrieve_documents)
     graph_builder.add_node("generate_response", node.generate_response)
@@ -32,11 +32,11 @@ class Graph:
       "extract_recent_chat_history",
       is_conversation_long,
       {
-        True: "generate_summary_of_chat_history",
+        True: "generate_chat_summary",
         False: "generate_search_query"
       }
     )
-    graph_builder.add_edge("generate_summary_of_chat_history", "generate_search_query")
+    graph_builder.add_edge("generate_chat_summary", "generate_search_query")
     graph_builder.add_edge("generate_search_query", "retrieve_documents")
     graph_builder.add_conditional_edges(
       "retrieve_documents",
