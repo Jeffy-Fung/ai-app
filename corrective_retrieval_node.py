@@ -29,11 +29,16 @@ class CorrectiveRetrievalNode:
 
     documents = state["documents"]
     documents_with_scores = []
+    tasks = []
     for document in documents:
-      result = await retrieval_grader.ainvoke({
+      tasks.append(retrieval_grader.ainvoke({
         "document": document,
         "question": state["user_query"]
-      })
+      }))
+
+    results = await asyncio.gather(*tasks)
+
+    for document, result in zip(documents, results):
       documents_with_scores.append({
         "document": document,
         "score": result.score
