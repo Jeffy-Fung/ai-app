@@ -21,14 +21,15 @@ class Graph:
     graph_builder = StateGraph(State, ConfigSchema)
     node = Node()
 
+    graph_builder.add_node("extract_recent_chat_history", node.extract_recent_chat_history)
     graph_builder.add_node("generate_summary_of_chat_history", node.generate_summary_of_chat_history)
     graph_builder.add_node("generate_search_query", node.generate_search_query)
     graph_builder.add_node("retrieve_documents", node.retrieve_documents)
     graph_builder.add_node("generate_response", node.generate_response)
 
-
+    graph_builder.add_edge(START, "extract_recent_chat_history")
     graph_builder.add_conditional_edges(
-      START,
+      "extract_recent_chat_history",
       is_conversation_long,
       {
         True: "generate_summary_of_chat_history",

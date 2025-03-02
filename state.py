@@ -6,6 +6,7 @@ from langgraph.graph import add_messages
 
 class State(TypedDict):
   message_histories: Annotated[list, add_messages]
+  recent_chat_history: Annotated[list, add_messages]
   user_query: str
   summary: str
   search_query: str

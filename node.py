@@ -10,6 +10,17 @@ from web_search_tool import get_web_search_tool
 class Node:
   def __init__(self):
     self.llm = get_llm()
+    
+  def extract_recent_chat_history(self, state: State) -> State:
+    return {
+      "recent_chat_history": trim_messages(
+          state["message_histories"],
+          token_counter=len,
+          strategy="last",
+          include_system=False,
+          max_tokens=5
+        ),
+    }
 
   def generate_response(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
@@ -22,7 +33,7 @@ class Node:
       \n\nQuestion: {question}
       \n\nNews articles: \n\n{documents}
       \n\nSummary of previous conversations: {summary}
-      \n\nThe latest 5 conversations: {latest_chat_history}
+      \n\nThe latest 5 conversations: {recent_chat_history}
       """
     )
 
@@ -34,13 +45,7 @@ class Node:
             "documents": state["documents"],
             "question": state["user_query"],
             "summary": state["summary"],
-            "latest_chat_history": trim_messages(
-              state["message_histories"],
-              token_counter=len,
-              strategy="last",
-              include_system=False,
-              max_tokens=5
-            )
+            "recent_chat_history": state["recent_chat_history"]
           })
         )
     }
@@ -71,7 +76,7 @@ class Node:
         Now, given the latest 5 conversations and the summary of the chat history, generate a search query to look up to get information relevant to the conversation.
 
         \n\nQuestion: {user_query}
-        \n\nChat history: {latest_chat_history}
+        \n\nLatest 5 conversations: {recent_chat_history}
         \n\nSummary of chat history: {summary}
       """
     )
@@ -81,13 +86,7 @@ class Node:
     return {
       "search_query": chain.invoke({
           "user_query": state["user_query"],
-          "latest_chat_history": trim_messages(
-              state["message_histories"],
-              token_counter=len,
-              strategy="last",
-              include_system=False,
-              max_tokens=5
-            ),
+          "recent_chat_history": state["recent_chat_history"],
           "summary": state["summary"]
         })
     }
