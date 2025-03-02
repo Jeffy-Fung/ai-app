@@ -50,7 +50,7 @@ class Graph:
       is_documents_found,
       {
         True: "retrieval_grader",
-        False: END,
+        False: "generate_response",
       }
     )
     graph_builder.add_edge("retrieval_grader", "remove_erroneous_retrievals")
