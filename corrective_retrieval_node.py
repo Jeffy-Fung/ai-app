@@ -17,9 +17,9 @@ class CorrectiveRetrievalNode:
 
   def retrieval_grader(self, state: State) -> State:
     system = """You are a grader assessing relevance of a retrieved document to a user question. \n 
-    If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
-    It does not need to be a stringent test. The goal is to filter out erroneous retrievals. \n
-    Give a score 'yes', 'no', or 'maybe' to indicate whether the document is relevant to the question."""
+    For example: If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
+    The goal is to filter out erroneous retrievals and to supplement the missing information for the ambiguous retrieved document when answering according to the user question. \n
+    Give a score 'yes', 'no', or 'maybe' to indicate whether the document is relevant, erroneous, or ambiguous to the question."""
 
     grade_prompt = ChatPromptTemplate.from_messages(
       [
