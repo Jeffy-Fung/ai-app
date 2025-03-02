@@ -44,9 +44,9 @@ class CorrectiveRetrievalNode:
     
   def remove_erroneous_retrievals(self, state: State) -> State:
     documents_with_scores = state["documents_with_scores"]
-    documents = [document for document in documents_with_scores if document["score"] != "irrelevant"]
+    resulting_documents = [document for document in documents_with_scores if document["score"] != "irrelevant"]
     return {
-      "documents_with_scores": documents
+      "documents_with_scores": resulting_documents
     }
     
   def define_web_search_query(self, state: State) -> State:
