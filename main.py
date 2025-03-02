@@ -33,7 +33,7 @@ class InvokeRequest(BaseModel):
 async def rag_chat(request: InvokeRequest):
   graph = Graph().graph
 
-  result = graph.invoke({
+  result = await graph.ainvoke({
     "message_histories": request.message_histories,
     "filtered_document_ids": request.filtered_document_ids,
     "user_query": request.raw_input,
