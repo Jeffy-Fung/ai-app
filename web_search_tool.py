@@ -1,4 +1,4 @@
 from langchain_community.tools.tavily_search import TavilySearchResults
 
 def get_web_search_tool():
-  return TavilySearchResults(k=3)
+  return TavilySearchResults(max_results=3)
