@@ -14,7 +14,7 @@ class CorrectiveRetrievalNode:
     system = """You are a grader assessing relevance of a retrieved document to a user question. \n 
     For example: If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
     The goal is to filter out erroneous retrievals and to supplement the missing information for the ambiguous retrieved document when answering according to the user question. \n
-    Give a score 'yes', 'no', or 'maybe' to indicate whether the document is relevant, erroneous, or ambiguous to the question."""
+    Give a score of 'relevant', 'irrelevant', or 'ambiguous' to indicate whether the document is relevant, erroneous, or ambiguous to the question."""
 
     grade_prompt = ChatPromptTemplate.from_messages(
       [
@@ -44,7 +44,7 @@ class CorrectiveRetrievalNode:
     
   def remove_erroneous_retrievals(self, state: State) -> State:
     documents_with_scores = state["documents_with_scores"]
-    documents = [document for document in documents_with_scores if document["score"] != "no"]
+    documents = [document for document in documents_with_scores if document["score"] != "irrelevant"]
     return {
       "documents_with_scores": documents
     }
@@ -66,7 +66,7 @@ class CorrectiveRetrievalNode:
     documents = state["documents"]
     documents_with_scores = []
     for document in documents:
-      if document["score"] == "maybe":
+      if document["score"] == "ambiguous":
         result = chain.invoke({
           "question": state["user_query"],
           "document": document
@@ -113,5 +113,5 @@ class GradeDocuments(BaseModel):
     """Binary score for relevance check on retrieved documents."""
 
     score: str = Field(
-        description="Documents are relevant to the question, 'yes', 'no', or 'maybe'"
+        description="Documents are relevant to the question, 'relevant', 'irrelevant', or 'ambiguous'"
     )
