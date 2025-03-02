@@ -64,10 +64,9 @@ class Node:
     prompt = PromptTemplate.from_template(
       """
         You are an AI assistant specializing in Question-Answering (QA) tasks within a Retrieval-Augmented Generation (RAG) system. 
-        Your primary mission is to answer questions based on the provided context or chat history.
-        Ensure your response is concise and directly addresses the question without any additional narration.
-
-        Now, given the latest 5 conversations and the summary of the chat history, generate a search query to look up to get information relevant to the conversation.
+        Your primary mission is to generate a history-aware search query for looking up the vector store to retrieve relevant information of the user query.
+        Now, given the latest 5 conversations and the summary of the chat history, generate the search query.
+        Remember to be specific enough so that the search query includes the context of the previous conversation, if any.
 
         \n\nQuestion: {user_query}
         \n\nLatest 5 conversations: {recent_chat_history}
