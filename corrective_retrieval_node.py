@@ -47,6 +47,13 @@ class CorrectiveRetrievalNode:
       "documents_with_scores": documents_with_scores
     }
     
+  def remove_erroneous_retrievals(self, state: State) -> State:
+    documents_with_scores = state["documents_with_scores"]
+    documents = [document for document in documents_with_scores if document.score != "no"]
+    return {
+      "documents": documents
+    }
+    
   def define_web_search_query(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
