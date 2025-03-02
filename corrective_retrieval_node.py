@@ -10,7 +10,7 @@ class CorrectiveRetrievalNode:
   def __init__(self):
     self.llm = get_llm()
 
-  def retrieval_grader(self, state: State) -> State:
+  async def retrieval_grader(self, state: State) -> State:
     system = """You are a grader assessing relevance of a retrieved document to a user question. \n 
     For example: If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
     The goal is to filter out erroneous retrievals and to supplement the missing information for the ambiguous retrieved document when answering according to the user question. \n
@@ -29,7 +29,7 @@ class CorrectiveRetrievalNode:
     documents = state["documents"]
     documents_with_scores = []
     for document in documents:
-      result = retrieval_grader.invoke({
+      result = await retrieval_grader.ainvoke({
         "document": document,
         "question": state["user_query"]
       })
