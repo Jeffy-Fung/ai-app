@@ -92,11 +92,11 @@ class CorrectiveRetrievalNode:
     
     web_search_results = []
     for document in documents_with_scores:
-      if document.web_search_query is None:
+      if document["web_search_query"] is None:
         continue
 
       web_search_tool = get_web_search_tool()
-      results = web_search_tool.invoke(document.web_search_query)
+      results = web_search_tool.invoke(document["web_search_query"])
       overall_results = "\n".join([d["content"] for d in results])
       overall_results = Document(page_content=overall_results)
       web_search_results.append({
