@@ -4,16 +4,11 @@ from web_search_tool import get_web_search_tool
 from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain.schema import Document
 
 class CorrectiveRetrievalNode:
   def __init__(self):
     self.llm = get_llm()
-  
-  def web_search(self, state: State) -> State:
-    web_search_tool = get_web_search_tool()
-    return {
-      "web_search_results": web_search_tool.invoke(state["search_query"])
-    }
 
   def retrieval_grader(self, state: State) -> State:
     system = """You are a grader assessing relevance of a retrieved document to a user question. \n 
@@ -93,7 +88,25 @@ class CorrectiveRetrievalNode:
     }
 
   def support_documents_with_web_search(self, state: State) -> State:
-    pass
+    documents_with_scores = state["documents_with_scores"]
+    
+    web_search_results = []
+    for document in documents_with_scores:
+      if document.web_search_query is None:
+        continue
+
+      web_search_tool = get_web_search_tool()
+      results = web_search_tool.invoke(document.web_search_query)
+      overall_results = "\n".join([d["content"] for d in results])
+      overall_results = Document(page_content=overall_results)
+      web_search_results.append({
+        "document": document,
+        "web_search_results": overall_results
+      })
+
+    return {
+      "web_search_results": web_search_results
+    }
 
 # Data model for the retrieval grader
 class GradeDocuments(BaseModel):
