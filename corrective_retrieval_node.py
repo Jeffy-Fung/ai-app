@@ -44,9 +44,9 @@ class CorrectiveRetrievalNode:
     
   def remove_erroneous_retrievals(self, state: State) -> State:
     documents_with_scores = state["documents_with_scores"]
-    documents = [document for document in documents_with_scores if document.score != "no"]
+    documents = [document for document in documents_with_scores if document["score"] != "no"]
     return {
-      "documents": documents
+      "documents_with_scores": documents
     }
     
   def define_web_search_query(self, state: State) -> State:
@@ -66,20 +66,20 @@ class CorrectiveRetrievalNode:
     documents = state["documents"]
     documents_with_scores = []
     for document in documents:
-      if document.score == "maybe":
+      if document["score"] == "maybe":
         result = chain.invoke({
           "question": state["user_query"],
           "document": document
         })
         documents_with_scores.append({
           "document": document,
-          "score": document.score,
+          "score": document["score"],
           "web_search_query": result
         })
       else:
         documents_with_scores.append({
           "document": document,
-          "score": document.score,
+          "score": document["score"],
           "web_search_query": None
         })
 
