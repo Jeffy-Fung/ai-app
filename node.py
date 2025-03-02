@@ -4,7 +4,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from retriever import get_retriever
 from langchain_core.messages import AIMessage, trim_messages
-from web_search_tool import get_web_search_tool
 
 
 class Node:
@@ -110,10 +109,4 @@ class Node:
           "chat_history": state["message_histories"],
           "user_query": state["user_query"]
         })
-    }
-
-  def web_search(self, state: State) -> State:
-    web_search_tool = get_web_search_tool()
-    return {
-      "web_search_results": web_search_tool.invoke(state["search_query"])
     }
