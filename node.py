@@ -56,13 +56,6 @@ class Node:
 
     retrieved_documents = retriever.invoke(state["search_query"])
 
-    if len(retrieved_documents) == 0:
-      return {
-        "output": AIMessage(
-          "No documents found."
-        )
-      }
-
     return {
       "documents": retrieved_documents
     }
