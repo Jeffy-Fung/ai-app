@@ -115,5 +115,5 @@ class Node:
   def web_search(self, state: State) -> State:
     web_search_tool = get_web_search_tool()
     return {
-      "documents": web_search_tool.invoke(state["search_query"])
+      "web_search_results": web_search_tool.invoke(state["search_query"])
     }

@@ -12,4 +12,5 @@ class State(TypedDict):
   search_query: str
   filtered_document_ids: list[int | str]
   documents: list
+  web_search_results: list
   output: str
