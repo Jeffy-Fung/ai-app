@@ -49,7 +49,7 @@ class CorrectiveRetrievalNode:
       "documents_with_scores": resulting_documents
     }
     
-  def define_web_search_query(self, state: State) -> State:
+  async def define_web_search_query(self, state: State) -> State:
     prompt = PromptTemplate.from_template(
       """
       You are a helpful assistant that defines a web search query, based on a user question and a retrieved document.
@@ -67,7 +67,7 @@ class CorrectiveRetrievalNode:
     documents_with_scores = []
     for document in documents:
       if document["score"] == "ambiguous":
-        result = chain.invoke({
+        result = await chain.ainvoke({
           "question": state["user_query"],
           "document": document
         })
