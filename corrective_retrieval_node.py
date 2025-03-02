@@ -87,7 +87,7 @@ class CorrectiveRetrievalNode:
       "documents_with_scores": documents_with_scores
     }
 
-  def support_documents_with_web_search(self, state: State) -> State:
+  async def support_documents_with_web_search(self, state: State) -> State:
     documents_with_scores = state["documents_with_scores"]
     
     web_search_results = []
@@ -96,8 +96,8 @@ class CorrectiveRetrievalNode:
         continue
 
       web_search_tool = get_web_search_tool()
-      results = web_search_tool.invoke(document["web_search_query"])
-      overall_results = "\n".join([d["content"] for d in results])
+      results = await web_search_tool.ainvoke(document["web_search_query"])
+      overall_results = "\n".join([d["content"] for d in results if "content" in d])
       overall_results = Document(page_content=overall_results)
       web_search_results.append({
         "web_search_results": overall_results
